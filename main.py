@@ -1,8 +1,10 @@
 from flask import Flask, jsonify,request
+from flask_cors import CORS, cross_origin
 import requests
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+CORS(app, support_credentials=True)
 
 def getText():
     url=request.json["url"]
@@ -18,6 +20,7 @@ def welcome():
     return "Welcome to Saaransh backend!!!"
 
 @app.route("/getdata",methods=['POST','GET'])
+@cross_origin(supports_credentials=True)
 def getData():
     text=getText()
     Webtext=jsonify({
@@ -28,7 +31,7 @@ def getData():
 @app.route("/getsummaryp",methods=['POST','GET'])
 def get_summary():
     text=getText()
-    openai_api_key = "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"
+    openai_api_key = "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"
     URL = "https://api.openai.com/v1/chat/completions"
     payload = {"model": "gpt-3.5-turbo", "temperature" : 1.0, "messages" : [{"role": "user", "content": f"Summarize the following text give answer in maximum 50 words: {text}"}]}
     headers = {"Content-Type": "application/json","Authorization": f"Bearer {openai_api_key}"}
@@ -44,13 +47,13 @@ def get_summary():
 @app.route("/getsummarypoints",methods=['POST','GET'])
 def get_major_points():
     text=getText()
-    openai_api_key = "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"
+    openai_api_key = "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"
     URL = "https://api.openai.com/v1/chat/completions"
     payload = {"model": "gpt-3.5-turbo", "temperature" : 1.0, "messages" : [{"role": "user", "content": f"Provide major points around 4-5 for the following text: {text}"}]}
     headers = {"Content-Type": "application/json","Authorization": f"Bearer {openai_api_key}"}
     response = requests.post(URL, headers=headers, json=payload)
     response = response.json()
-    print(response['choices'][0]['message']['content'])
+    print(response)
     summaryPoints=jsonify({
         "summarypoints":response['choices'][0]['message']['content']
         })
@@ -65,4 +68,4 @@ def get_major_points():
 
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0',debug=True,port=3000)
